@@ -1,14 +1,14 @@
 {
-  "name": "Stryc",
-  "description": "stryc",
+  "name": "Golgif",
+  "description": "Golgif",
   "version": "1.2",
   "background": {
       "scripts": [
-          "background.js", "stryc.js"
+          "background.js", "gfycat.js"
       ]
   },
   "browser_action": {
-      "name": "stryc"
+      "name": "Golgif"
   },
   "permissions": [
       "tabs",

@@ -1,18 +1,15 @@
-// Copyright (c) 2011 The Chromium Authors. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+chrome.browserAction.setIcon({path:"ball.ico"});
 
-chrome.browserAction.setIcon({path:"stryc.png"});
+function injectScript(tab) {
 
-function updateIcon(tab) {
-
+    chrome.browserAction.setIcon({path:"icon" + Math.random()%5 + ".png"});
 	if(tab)
 	{
 		chrome.tabs.executeScript(tab.id, {
-			file: 'stryc.js'
-		});	
+			file: 'gfycat.js'
+		});
 	}
-	  
+
 }
 
-chrome.browserAction.onClicked.addListener(updateIcon);
+chrome.browserAction.onClicked.addListener(injectScript);
