@@ -1,0 +1,23 @@
+{
+  "name": "Stryc",
+  "description": "stryc",
+  "version": "1.2",
+  "background": {
+      "scripts": [
+          "background.js", "stryc.js"
+      ]
+  },
+  "browser_action": {
+      "name": "stryc"
+  },
+  "permissions": [
+      "tabs",
+        "http://*/",
+        "https://*/"
+  ],
+ "content_scripts": [ {
+    "js": [ "background.js"],
+    "matches": [ "http://*/*", "https://*/*"]
+  }],
+  "manifest_version": 2
+}
