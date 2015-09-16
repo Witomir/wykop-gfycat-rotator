@@ -1,6 +1,6 @@
 {
-  "name": "Golgif",
-  "description": "Golgif",
+  "name": "_Golgif",
+  "description": "fetches gfycats from http://www.wykop.pl/tag/golgif",
   "version": "1.2",
   "background": {
       "scripts": [
@@ -8,7 +8,11 @@
       ]
   },
   "browser_action": {
-      "name": "Golgif"
+      "name": "Golgif",
+      "default_icon": {                    // optional
+          "19": "ball.png",           // optional
+          "38": "ball.png"            // optional
+        }
   },
   "permissions": [
       "tabs",
