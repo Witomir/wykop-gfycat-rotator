@@ -7,7 +7,7 @@ var App = function(appKey, tag){
     var gfycatRegex = /http\:\/\/gfycat\.com\/[a-zA-Z]*/g;
     var gfycatNameRegex = /gfycat\.com\/([a-zA-Z]*)/g;
     var gifs = [];
-    var maxApiPages = 4;
+    var maxApiPages = 6;
     var processedPages = 0;
     var iframe = {};
     var repeatFrequency = 20 * 1000;
@@ -34,17 +34,18 @@ var App = function(appKey, tag){
 
     function startApp(index) {
         isStarted = true;
+        if (index == gifs.length) {
+            index = 0;
+        }
+
         iframe.src = gifs[index]['url'];
         var length = gifs[index]['length'];
 
         document.replaceChild(iframe, document.documentElement);
         iframe.onload = doubleClickGfy;
         var timeout = length > 0 ? length : repeatFrequency;
-        if (index == gifs.length) {
-            index = -1;
-        }
         index++;
-        appSheduledJob = setTimeout(function(){startApp(index)}, timeout)
+        appSheduledJob = setTimeout(function(){startApp(index)}, timeout);
     }
 
 
