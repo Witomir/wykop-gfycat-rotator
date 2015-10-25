@@ -143,6 +143,7 @@ var App = function(appKey, tag){
     function fetchGfyInfo(url, gfyInfo) {
         var gfycatNameRegex = /gfycat\.com\/([a-zA-Z]*)/g;
         var gfyName = gfycatNameRegex.exec(url);
+        return gfyInfo;
         //gfyName = gfyName[1];
         //doAjax(gfycatApiUrl + gfyName, parseGfycatResponse);
     }
@@ -207,6 +208,11 @@ var App = function(appKey, tag){
         }
     }
 
+    function handleApiError(responseError) {
+        stopApp();
+        alert('Błąd pobierania strony wpisów: ' + processedPages + ', ' + responseError.message);
+    }
+
     /**
      * Parsuje JSON od wykopu i jeśli wczytała się ostatnia ze stron, startuje rotowanie gifów
      * @param response
@@ -215,6 +221,9 @@ var App = function(appKey, tag){
         if(this.readyState == XMLHttpRequest.DONE && this.status==200) {
             processedPages++;
             response = JSON.parse(this.responseText);
+            if(response.error !== null ){
+                return handleApiError(response.error);
+            }
             if(response.items !== null && response.items !== undefined){
                 for(var i = 0; i < response.items.length; i++){
                     prepareEntry(response.items[i]);
