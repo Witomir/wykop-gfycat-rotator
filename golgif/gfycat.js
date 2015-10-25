@@ -228,7 +228,7 @@ var App = function(appKey, tag){
 }
 
 if(GolgifApp === undefined || GolgifApp.isStarted() === false) {
-    var GolgifApp = new App('wTUUF5swmD', 'golgif');
+    var GolgifApp = new App(alert('Podmień tego alerta na swój własny klucz API wykopu'), 'golgif');
 }
 else {
     GolgifApp.stopApp();
