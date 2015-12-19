@@ -32,6 +32,7 @@ var App = function(appKey, tag){
     var apiUri = apiSrc + 'tag/' + 'Entries/' + wykopTag + '/appkey,' + key + ',page,';
     var gfycatRegex = /http\:\/\/gfycat\.com\/[a-zA-Z]*/g;
     var gfycatNameRegex = /gfycat\.com\/([a-zA-Z]*)/g;
+    var gfycatVideoElementId = 'share-video';
     var gifs = [];
     var processedPages = 0;
     var iframe = {};
@@ -81,7 +82,7 @@ var App = function(appKey, tag){
      */
     var doubleClickGfy = function (event) {
         var iframeDocument = iframe.contentDocument;
-        var video = iframeDocument.getElementById('gfyVid1');
+        var video = iframeDocument.getElementById(gfycatVideoElementId);
         var event = new MouseEvent('dblclick', {
             'view': iframe.contentWindow,
             'bubbles': true,
@@ -221,7 +222,7 @@ var App = function(appKey, tag){
         if(this.readyState == XMLHttpRequest.DONE && this.status==200) {
             processedPages++;
             response = JSON.parse(this.responseText);
-            if(response.error !== null ){
+            if(response.error !== undefined ){
                 return handleApiError(response.error);
             }
             if(response.items !== null && response.items !== undefined){
