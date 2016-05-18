@@ -28,9 +28,9 @@ var App = function(appKey, tag){
     var repeatFrequency = 20 * 1000;
 
     var apiSrc = 'http://a.wykop.pl/';
-    var gfycatApiUrl = 'http://gfycat.com/cajax/get/';
-    var apiUri = apiSrc + 'tag/' + 'Entries/' + wykopTag + '/appkey,' + key + ',page,';
-    var gfycatRegex = /http\:\/\/gfycat\.com\/[a-zA-Z]*/g;
+    var gfycatApiUrl = 'https://api.gfycat.com/v1/oembed?url=';
+    var apiUri = apiSrc + 'tag/Entries/' + wykopTag + '/appkey,' + key + ',page,';
+    var gfycatRegex = /https*\:\/\/gfycat\.com\/[a-zA-Z]*/g;
     var gfycatNameRegex = /gfycat\.com\/([a-zA-Z]*)/g;
     var gfycatVideoElementId = 'share-video';
     var gifs = [];
@@ -45,7 +45,6 @@ var App = function(appKey, tag){
      */
     function App(){
         clearGfys();
-        prepareIframe();
         loadData(1, maxApiPages);
     };
     App();
@@ -64,31 +63,6 @@ var App = function(appKey, tag){
     this.stopApp = stopApp = function(){
         isStarted = false;
         clearTimeout(appSheduledJob);
-    }
-
-    /**
-     * Tworzymy iframe do którego będą ładowane gify i rozpychamy go na całą stronę
-     */
-    function prepareIframe(){
-        iframe = document.createElement('iframe');
-        iframe.id = 'gfyiframe';
-        iframe.style.width = '100%';
-        iframe.style.height = '100%';
-    };
-
-    /**
-     * Dwukrotnie klika w video, żeby się dopasowało do rozmiaru okna
-     * @param event
-     */
-    var doubleClickGfy = function (event) {
-        var iframeDocument = iframe.contentDocument;
-        var video = iframeDocument.getElementById(gfycatVideoElementId);
-        var event = new MouseEvent('dblclick', {
-            'view': iframe.contentWindow,
-            'bubbles': true,
-            'cancelable': true
-        });
-        video.dispatchEvent(event);
     }
 
     /**
@@ -112,41 +86,20 @@ var App = function(appKey, tag){
             stopApp();
             return App();
         }
-
-        iframe.src = gifs[index]['url'];
-        var length = gifs[index]['length'];
-
-        document.replaceChild(iframe, document.documentElement);
-        iframe.onload = doubleClickGfy;
-        var timeout = length > 0 ? length : repeatFrequency;
+        playGfy(gifs[index]);
         index++;
-        appSheduledJob = setTimeout(function(){startApp(index)}, timeout);
+        appSheduledJob = setTimeout(function(){startApp(index)}, repeatFrequency);
     }
 
-    /**
-     * Parsuje odpowiedź API gfycat.com
-     * @param response
-     */
-    function parseGfycatResponse(response) {
-        if(this.readyState == XMLHttpRequest.DONE && this.status==200) {
-            response = JSON.parse(this.responseText);
-        }
-    }
-
-    /**
-     * Użytwane do uzupełnienia informacji o pliku gfy, np. określenie jego długości, żeby nie
-     * przełączać do następnego filmiku w kolejce jeszcze w trakcie odtwarzania poprzedniego gifa.
-     * Czasami moment przełączenia jest dosłownie przed uderzeniem zdobywającym punkt, co nieco wkurza
-     * #piekloperfekcjonistow
-     * @param url
-     * @param gfyInfo
-     */
-    function fetchGfyInfo(url, gfyInfo) {
-        var gfycatNameRegex = /gfycat\.com\/([a-zA-Z]*)/g;
-        var gfyName = gfycatNameRegex.exec(url);
-        return gfyInfo;
-        //gfyName = gfyName[1];
-        //doAjax(gfycatApiUrl + gfyName, parseGfycatResponse);
+    function playGfy(gif){
+        doAjax(gfycatApiUrl + gif.url, function(){
+            if(this.readyState == XMLHttpRequest.DONE && this.status==200) {
+                response = JSON.parse(this.responseText);
+                if(response.html !== undefined){
+                    document.documentElement.innerHTML = response.html;
+                }
+            }
+        });
     }
 
     /**
@@ -158,7 +111,6 @@ var App = function(appKey, tag){
             'url': url,
             'length': 0
         };
-        fetchGfyInfo(url, gfyInfo);
         gifs.push(gfyInfo);
     }
 
@@ -200,7 +152,7 @@ var App = function(appKey, tag){
         }
 
         var embedSrc = "";
-        if(entry.embed !== null) {
+        if(entry.embed !== null && entry.embed !== undefined) {
             embedSrc = entry.embed.source;
             var gfysInEntrysEmbed = gfycatRegex.exec(embedSrc);
             if(gfysInEntrysEmbed && gfysInEntrysEmbed.length > 0) {
@@ -222,20 +174,24 @@ var App = function(appKey, tag){
         if(this.readyState == XMLHttpRequest.DONE && this.status==200) {
             processedPages++;
             response = JSON.parse(this.responseText);
+            // response = {items: [{body: "http://gfycat.com/AchingVastAfricancivet"}, {body: "https://gfycat.com/MeaslyOddballKinkajou"}]};
             if(response.error !== undefined ){
                 return handleApiError(response.error);
             }
+
             if(response.items !== null && response.items !== undefined){
                 for(var i = 0; i < response.items.length; i++){
                     prepareEntry(response.items[i]);
                 }
             }
+
             if(processedPages >= maxApiPages) {
                 return startApp(0);
             }
         }
     }
 }
+
 
 if(GolgifApp === undefined || GolgifApp.isStarted() === false) {
     var GolgifApp = new App(alert('Podmień tego alerta na swój własny klucz API wykopu'), 'golgif');
